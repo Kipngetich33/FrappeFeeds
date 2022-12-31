@@ -14,7 +14,8 @@ frappe.pages["print"].on_page_load = function (wrapper) {
 			frappe.call({
 				method: "feeds.custom_methods.sales_invoice.print_allowed",
 				args: {
-					"name": docname
+					"name": docname,
+					"user": frappe.session.user
 				},
 				callback: function(res) {
 					if (res) {
