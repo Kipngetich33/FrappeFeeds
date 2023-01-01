@@ -61,6 +61,26 @@ frappe.pages["print"].on_page_load = function (wrapper) {
 					}
 				}
 			});
+		}else{
+
+			// continue normally
+			if (!frappe.route_options || !frappe.route_options.frm) {
+				frappe.model.with_doc(doctype, docname, () => {
+					let frm = { doctype: doctype, docname: docname };
+					frm.doc = frappe.get_doc(doctype, docname);
+					frappe.model.with_doctype(doctype, () => {
+						frm.meta = frappe.get_meta(route[1]);
+						print_view.show(frm);
+					});
+				});
+			} else {
+				print_view.frm = frappe.route_options.frm.doctype
+					? frappe.route_options.frm
+					: frappe.route_options.frm.frm;
+				frappe.route_options.frm = null;
+				print_view.show(print_view.frm);
+			}
+
 		}
 	});
 };
