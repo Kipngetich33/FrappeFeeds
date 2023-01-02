@@ -408,14 +408,14 @@ frappe.ui.form.Toolbar = class Toolbar {
 		// 	);
 		// }
 
-		// // reload
-		// this.page.add_menu_item(
-		// 	__("Reload"),
-		// 	function () {
-		// 		me.frm.reload_doc();
-		// 	},
-		// 	true
-		// );
+		// reload
+		this.page.add_menu_item(
+			__("Reload"),
+			function () {
+				me.frm.reload_doc();
+			},
+			true
+		);
 
 		// delete
 		if (
