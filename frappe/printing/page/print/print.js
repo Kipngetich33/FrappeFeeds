@@ -10,78 +10,98 @@ frappe.pages["print"].on_page_load = function (wrapper) {
 		const doctype = route[1];
 		const docname = route.slice(2).join("/");
 
-		if(doctype == "Sales Invoice"){
-			frappe.call({
-				method: "feeds.custom_methods.sales_invoice.print_allowed",
-				args: {
-					"name": docname,
-					"user": frappe.session.user
-				},
-				callback: function(res) {
-					if (res) {
-						if(res.message.status){
+		// if(doctype == "Sales Invoice"){
+		// 	frappe.call({
+		// 		method: "feeds.custom_methods.sales_invoice.print_allowed",
+		// 		args: {
+		// 			"name": docname,
+		// 			"user": frappe.session.user
+		// 		},
+		// 		callback: function(res) {
+		// 			if (res) {
+		// 				if(res.message.status){
 							
-							if (!frappe.route_options || !frappe.route_options.frm) {
-								frappe.model.with_doc(doctype, docname, () => {
-									let frm = { doctype: doctype, docname: docname };
-									frm.doc = frappe.get_doc(doctype, docname);
-									frappe.model.with_doctype(doctype, () => {
-										frm.meta = frappe.get_meta(route[1]);
-										print_view.show(frm);
-									});
-								});
-							} else {
-								print_view.frm = frappe.route_options.frm.doctype
-									? frappe.route_options.frm
-									: frappe.route_options.frm.frm;
-								frappe.route_options.frm = null;
-								print_view.show(print_view.frm);
-							}
+		// 					if (!frappe.route_options || !frappe.route_options.frm) {
+		// 						frappe.model.with_doc(doctype, docname, () => {
+		// 							let frm = { doctype: doctype, docname: docname };
+		// 							frm.doc = frappe.get_doc(doctype, docname);
+		// 							frappe.model.with_doctype(doctype, () => {
+		// 								frm.meta = frappe.get_meta(route[1]);
+		// 								print_view.show(frm);
+		// 							});
+		// 						});
+		// 					} else {
+		// 						print_view.frm = frappe.route_options.frm.doctype
+		// 							? frappe.route_options.frm
+		// 							: frappe.route_options.frm.frm;
+		// 						frappe.route_options.frm = null;
+		// 						print_view.show(print_view.frm);
+		// 					}
 
-						}else{
+		// 				}else{
 
-							// throw a message
-							let d = new frappe.msgprint({
-								title: __('Error Message'),
-								message: __('You are not allowed to print more than once.'),
-								primary_action:{
-									action(values) {
-										d.hide()
-									}
-								}
-							});
+		// 					// throw a message
+		// 					let d = new frappe.msgprint({
+		// 						title: __('Error Message'),
+		// 						message: __('You are not allowed to print more than once.'),
+		// 						primary_action:{
+		// 							action(values) {
+		// 								d.hide()
+		// 							}
+		// 						}
+		// 					});
 
-							frappe.set_route("Form", "Sales Invoice", docname );
+		// 					frappe.set_route("Form", "Sales Invoice", docname );
 
-							// show dialog
-							d.show()
-						}
-					}else{
-						frappe.throw(`An error occured processign this request please try again`)
-					}
-				}
-			});
-		}else{
+		// 					// show dialog
+		// 					d.show()
+		// 				}
+		// 			}else{
+		// 				frappe.throw(`An error occured processign this request please try again`)
+		// 			}
+		// 		}
+		// 	});
+		// }else{
 
-			// continue normally
-			if (!frappe.route_options || !frappe.route_options.frm) {
-				frappe.model.with_doc(doctype, docname, () => {
-					let frm = { doctype: doctype, docname: docname };
-					frm.doc = frappe.get_doc(doctype, docname);
-					frappe.model.with_doctype(doctype, () => {
-						frm.meta = frappe.get_meta(route[1]);
-						print_view.show(frm);
-					});
+		// 	// continue normally
+		// 	if (!frappe.route_options || !frappe.route_options.frm) {
+		// 		frappe.model.with_doc(doctype, docname, () => {
+		// 			let frm = { doctype: doctype, docname: docname };
+		// 			frm.doc = frappe.get_doc(doctype, docname);
+		// 			frappe.model.with_doctype(doctype, () => {
+		// 				frm.meta = frappe.get_meta(route[1]);
+		// 				print_view.show(frm);
+		// 			});
+		// 		});
+		// 	} else {
+		// 		print_view.frm = frappe.route_options.frm.doctype
+		// 			? frappe.route_options.frm
+		// 			: frappe.route_options.frm.frm;
+		// 		frappe.route_options.frm = null;
+		// 		print_view.show(print_view.frm);
+		// 	}
+
+		// }
+
+
+		// original code
+		if (!frappe.route_options || !frappe.route_options.frm) {
+			frappe.model.with_doc(doctype, docname, () => {
+				let frm = { doctype: doctype, docname: docname };
+				frm.doc = frappe.get_doc(doctype, docname);
+				frappe.model.with_doctype(doctype, () => {
+					frm.meta = frappe.get_meta(route[1]);
+					print_view.show(frm);
 				});
-			} else {
-				print_view.frm = frappe.route_options.frm.doctype
-					? frappe.route_options.frm
-					: frappe.route_options.frm.frm;
-				frappe.route_options.frm = null;
-				print_view.show(print_view.frm);
-			}
+			});
+		} else {
+			print_view.frm = frappe.route_options.frm.doctype
+				? frappe.route_options.frm
+				: frappe.route_options.frm.frm;
+			frappe.route_options.frm = null;
+			print_view.show(print_view.frm);
+		} 
 
-		}
 	});
 };
 
