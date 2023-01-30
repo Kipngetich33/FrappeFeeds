@@ -43,7 +43,7 @@ frappe.pages["print"].on_page_load = function (wrapper) {
 							// throw a message
 							let d = new frappe.msgprint({
 								title: __('Error Message'),
-								message: __('You are not allowed to print more than once.'),
+								message: __(res.message.message),
 								primary_action:{
 									action(values) {
 										d.hide()
