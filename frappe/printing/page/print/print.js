@@ -11,6 +11,7 @@ frappe.pages["print"].on_page_load = function (wrapper) {
 		const docname = route.slice(2).join("/");
 
 		if(doctype == "Sales Invoice"){
+
 			frappe.call({
 				method: "feeds.custom_methods.sales_invoice.print_allowed",
 				args: {
@@ -61,6 +62,7 @@ frappe.pages["print"].on_page_load = function (wrapper) {
 					}
 				}
 			});
+
 		}else{
 
 			// continue normally
@@ -559,6 +561,22 @@ frappe.ui.form.PrintView = class {
 	}
 
 	hide() {
+		if(doctype == "Sales Invoice"){
+			frappe.call({
+				method: "feeds.custom_methods.sales_invoice.mark_invoice_as_printed",
+				args: {
+					"name": docname,
+					"user": frappe.session.user
+				},
+				callback: function(res) {
+					if (res) {
+						if(res.message.status){
+						}
+					}
+				}
+			})
+		}
+
 		if (this.frm.setup_done && this.frm.page.current_view_name === "print") {
 			this.frm.page.set_view(
 				this.frm.page.previous_view_name === "print"
@@ -715,6 +733,7 @@ frappe.ui.form.PrintView = class {
 	}
 
 	render_page(method, printit = false) {
+		
 		let w = window.open(
 			frappe.urllib.get_full_url(
 				method +
