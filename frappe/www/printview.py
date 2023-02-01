@@ -621,11 +621,18 @@ def column_has_value(data, fieldname, col_df):
 	return has_value
 
 
-trigger_print_script = """
+trigger_print_script_backup = """
 <script>
 
 //allow wrapping of long tr
-var elements = document.getElementsByTagName("tr");
+//var elements = document.getElementsByTagName("tr");
+
+var i = elements.length;
+while (i--) {
+	if(elements[i].clientHeight>300){
+		elements[i].setAttribute("style", "page-break-inside: auto;");
+	}
+}
 
 let url = new URL(document.URL);
 let params = new URLSearchParams(url.search);
@@ -638,40 +645,105 @@ const get_doctype_n_name = (params) => {
 	return paramsObject
 }
 
-var i = elements.length;
-while (i--) {
-	if(elements[i].clientHeight>300){
-		elements[i].setAttribute("style", "page-break-inside: auto;");
-	}
+let formated_params = get_doctype_n_name(params)
+if(formated_params.doctype == "Sales Invoice"){
+	fetch("/api/method/feeds.custom_methods.sales_invoice.mark_invoice_as_printed", {
+		method: 'POST', 
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			sales_invoice:formated_params.name
+		})
+	})
+	.then(response => response.json())
+	.then(data => {
+		console.log("Runnign tests again .................................")
+		console.log(data)
+		if(data.message.status){
+			//sale invoices can be printed
+			window.print();
+
+			// close the window after print
+			// NOTE: doesn't close if print is cancelled in Chrome
+			// Changed timeout to 5s from 1s because it blocked mobile view rendering
+			setTimeout(function() {
+				window.close();
+			}, 5000);
+			
+		}else{
+			alert(data.message.message)
+			// window.close();
+		}
+	})
 }
 
-window.print();
-
-// close the window after print
-// NOTE: doesn't close if print is cancelled in Chrome
-// Changed timeout to 5s from 1s because it blocked mobile view rendering
-setTimeout(function() {
-	
-	let formated_params = get_doctype_n_name(params)
-	if(formated_params.doctype == "Sales Invoice"){
-		fetch("/api/method/feeds.custom_methods.sales_invoice.mark_invoice_as_printed", {
-			method: 'POST', 
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				sales_invoice:formated_params.name
-			})
-		})
-		.then(response => response.json())
-		.then(data => {
-			if(data.message.status){
-				window.close();
-			}
-		})
-	}
-
-}, 5000);
-
 </script>
+"""
+
+trigger_print_script = """
+	<script>
+		//allow wrapping of long tr
+		var elements = document.getElementsByTagName("tr");
+
+		var i = elements.length;
+		while (i--) {
+			if(elements[i].clientHeight>300){
+				elements[i].setAttribute("style", "page-break-inside: auto;");
+			}
+		}
+
+		//get url parameters
+		let url = new URL(document.URL);
+		let params = new URLSearchParams(url.search);
+		const get_doctype_n_name = (params) => {
+			let [doctype,name] = [null,null]
+			let paramsObject = {}
+			for (let pair of params.entries()) {
+				paramsObject[pair[0]] = pair[1]
+			}
+			return paramsObject
+		}
+
+		let formated_params = get_doctype_n_name(params)
+		if(formated_params.doctype == "Sales Invoice"){
+			fetch("/api/method/feeds.custom_methods.sales_invoice.mark_invoice_as_printed", {
+				method: 'POST', 
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					sales_invoice:formated_params.name
+				})
+			})
+			.then(response => response.json())
+			.then(data => {
+				if(data.message.status){
+					//sale invoices can be printed
+					window.print();
+
+					// close the window after print
+					// NOTE: doesn't close if print is cancelled in Chrome
+					// Changed timeout to 5s from 1s because it blocked mobile view rendering
+					setTimeout(function() {
+						window.close();
+					}, 5000);
+					
+				}else{
+					alert(data.message.message)
+					window.close();
+				}
+			})
+		}else{
+			window.print();
+
+			// close the window after print
+			// NOTE: doesn't close if print is cancelled in Chrome
+			// Changed timeout to 5s from 1s because it blocked mobile view rendering
+			setTimeout(function() {
+				window.close();
+			}, 5000);
+		}
+	</script>
+
 """
